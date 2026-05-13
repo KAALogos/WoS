@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz WOS — Społeczeństwo obywatelskie</title>
+<style>
+:root {
+  --bg:#f4f2ec; --card:#fffdf8; --ink:#172033; --muted:#64748b; --line:#ddd6c7;
+  --accent:#245b4f; --accent2:#e7f1ee; --good:#136f43; --bad:#b42318; --warn:#9a6700;
+  --goodbg:#eaf7ef; --badbg:#fff0ee; --warnbg:#fff7df; --shadow:0 18px 50px rgba(17,24,39,.10);
+}
+*{box-sizing:border-box}
+body{margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:radial-gradient(circle at top left,#edf7f3 0,#f4f2ec 28%,#f6f1e8 100%); color:var(--ink)}
+.wrap{max-width:1040px; margin:0 auto; padding:22px 14px 34px}
+.hero{display:grid; grid-template-columns:1.25fr .75fr; gap:18px; align-items:stretch; margin-bottom:16px}
+.title,.panel,.card{background:rgba(255,253,248,.94); border:1px solid var(--line); border-radius:28px; box-shadow:var(--shadow)}
+.title{padding:24px}
+h1{font-size:clamp(28px,4.4vw,48px); line-height:1.02; margin:0 0 12px; letter-spacing:-.04em}
+.subtitle{font-size:16px; line-height:1.55; color:#425066; margin:0; max-width:760px}
+.panel{padding:18px}
+.stats{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
+.stat{border:1px solid var(--line); background:#faf8f1; border-radius:18px; padding:12px}
+.stat b{display:block; font-size:27px; line-height:1}
+.stat span{font-size:12px; color:var(--muted)}
+.controls{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+button,select,input{font:inherit}
+button{border:0; border-radius:999px; padding:12px 16px; background:var(--accent); color:white; font-weight:800; cursor:pointer; box-shadow:0 8px 16px rgba(36,91,79,.16)}
+button:hover{filter:brightness(.98)}
+button.secondary{background:#eef3f0; color:#17443a; box-shadow:none; border:1px solid #d9e5e0}
+button.ghost{background:transparent; color:#245b4f; border:1px solid var(--line); box-shadow:none}
+button:disabled{opacity:.45; cursor:not-allowed}
+select{border:1px solid var(--line); background:#fffdf8; color:var(--ink); border-radius:999px; padding:11px 14px; font-weight:700; max-width:100%}
+.card{padding:clamp(18px,3vw,30px)}
+.topline{display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap}
+.badges{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.badge{font-size:13px; padding:7px 10px; border-radius:999px; background:#f1efe6; border:1px solid var(--line); color:#405067; font-weight:750}
+.badge.repeat{background:var(--warnbg); color:#7a5200; border-color:#efdaa3}
+.teacher-id{display:none}
+body.show-ids .teacher-id{display:inline-flex}
+.progress{height:12px; background:#e5dfd0; border-radius:999px; overflow:hidden; margin:8px 0 18px}
+.progress>div{height:100%; width:0%; background:linear-gradient(90deg,#245b4f,#4d8d79); transition:width .25s ease}
+.question{font-size:clamp(21px,3vw,31px); line-height:1.28; letter-spacing:-.025em; font-weight:850; margin:12px 0 18px}
+.options{display:grid; gap:10px}
+.option{display:grid; grid-template-columns:44px 1fr; gap:12px; align-items:center; width:100%; text-align:left; background:#fff; color:var(--ink); border:2px solid #e2dccf; border-radius:20px; padding:13px 14px; box-shadow:none; font-weight:700}
+.option .letter{width:36px; height:36px; border-radius:50%; background:var(--accent2); color:#205449; display:grid; place-items:center; font-weight:900}
+.option:hover{border-color:#b8cbc4; background:#fbfffd; filter:none}
+.option.selected{border-color:#245b4f; background:#f2faf7}
+.option.correct{border-color:#29a36a; background:var(--goodbg)}
+.option.missing{border-color:#dfb449; background:#fff8df}
+.option.wrong{border-color:#ef6f61; background:var(--badbg)}
+.open-answer{display:grid; gap:10px; margin:4px 0 2px}
+.open-answer label{font-weight:800; color:#405067}
+.open-answer input{width:100%; border:2px solid #e2dccf; border-radius:20px; padding:15px 16px; background:#fff; color:var(--ink); font-weight:750; font-size:18px}
+.open-answer input:focus{outline:none; border-color:#245b4f; box-shadow:0 0 0 4px rgba(36,91,79,.10)}
+.open-answer input.correct{border-color:#29a36a; background:var(--goodbg)}
+.open-answer input.wrong{border-color:#ef6f61; background:var(--badbg)}
+.feedback{display:none; margin-top:18px; border-radius:22px; padding:16px 18px; line-height:1.55; border:1px solid var(--line)}
+.feedback.show{display:block}
+.feedback.good{background:var(--goodbg); border-color:#b5e4c4; color:#0d4e2c}
+.feedback.bad{background:var(--badbg); border-color:#f2bbb5; color:#7a1d16}
+.feedback h2{margin:0 0 10px; font-size:21px}
+.feedback p{margin:0 0 10px}
+.feedback a{color:inherit; font-weight:800; text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:2px}
+.breakdown{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:12px 0}
+.breakbox{border:1px solid rgba(0,0,0,.10); border-radius:16px; padding:10px; background:rgba(255,255,255,.55)}
+.breakbox b{display:block; margin-bottom:5px}
+.breakbox.good b{color:#0d6b3d} .breakbox.missing b{color:#8a5a00} .breakbox.wrong b{color:#9f1f16}
+.breakbox ul{margin:0; padding-left:18px}
+.breakbox li{margin:3px 0}
+.explain{border-top:1px solid rgba(0,0,0,.12); padding-top:12px; margin-top:10px}
+.actions{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:18px}
+.end{text-align:center; padding:34px 18px}
+.end h2{font-size:32px; margin:0 0 10px; letter-spacing:-.03em}
+.small{color:var(--muted); font-size:13px; line-height:1.45}
+.footer{margin-top:12px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center}
+.toggle{display:flex; align-items:center; gap:8px; color:var(--muted); font-size:13px}
+input[type="checkbox"]{accent-color:#245b4f}
+@media(max-width:760px){.hero{grid-template-columns:1fr} .stats{grid-template-columns:repeat(4,1fr)} .stat{padding:9px} .stat b{font-size:21px} .option{grid-template-columns:38px 1fr; padding:12px} .breakdown{grid-template-columns:1fr}}
+@media(max-width:520px){.stats{grid-template-columns:repeat(2,1fr)} .controls button,.controls select{width:100%} .actions button{flex:1 1 100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="title">
+      <h1>Społeczeństwo obywatelskie</h1>
+      <p class="subtitle">Krótki quiz z WOS-u o dobrowolnej aktywności obywateli poza aparatem państwa: stowarzyszeniach, fundacjach, organizacjach pozarządowych, związkach zawodowych, spółdzielczości, dialogu społecznym i obywatelskim sprzeciwie. Po każdej odpowiedzi zobaczysz, co było zaznaczone dobrze, czego zabrakło i co było błędne.</p>
+      <div class="controls">
+        <select id="categorySelect" aria-label="Wybierz dział"><option value="all">Wszystkie działy</option></select>
+        <button id="startBtn">Start / losuj</button>
+        <button id="repeatBtn" class="secondary">Powtórki</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="stats">
+        <div class="stat"><b id="statAll">0</b><span>pytań</span></div>
+        <div class="stat"><b id="statDone">0</b><span>rozwiązane</span></div>
+        <div class="stat"><b id="statGood">0</b><span>dobrze</span></div>
+        <div class="stat"><b id="statRep">0</b><span>powtórki</span></div>
+      </div>
+      <div class="footer">
+        <button id="resetBtn" class="ghost">Wyczyść wynik</button>
+        <label class="toggle"><input id="showIds" type="checkbox"> pokaż numery pytań</label>
+      </div>
+    </div>
+  </section>
+
+  <main class="card" id="app"></main>
+</div>
+
+<script>
+const QUESTIONS = [{"id": "WOS-02516", "nr": 1, "category": "NGO / OPP / wolontariat", "categories": ["NGO / OPP / wolontariat"], "multi": false, "input": false, "question": "Skrót OPP oznacza:", "options": [{"key": "A", "text": "Organ Pożytku Publicznego"}, {"key": "B", "text": "Organ Pracy Publicznej"}, {"key": "C", "text": "Organizacja Pożytku Publicznego."}, {"key": "D", "text": "Organizacja Pracy Publicznej"}], "correct": ["C"], "explanationHtml": "OPP to organizacja pożytku publicznego, czyli organizacja spełniająca warunki określone w ustawie o działalności pożytku publicznego i o wolontariacie. Źródło: <a href=\"https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=wdu20030960873\" target=\"_blank\" rel=\"noopener\">ustawa z 24 kwietnia 2003 r.<\/a>.", "sourceNumber": "2", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-02527", "nr": 2, "category": "Stowarzyszenia", "categories": ["Stowarzyszenia"], "multi": true, "input": false, "question": "W III RP wyróżniamy formalnie następujące rodzaje stowarzyszeń:", "options": [{"key": "A", "text": "rejestrowe"}, {"key": "B", "text": "stałe"}, {"key": "C", "text": "tymczasowe"}, {"key": "D", "text": "zwykłe"}], "correct": ["A", "D"], "explanationHtml": "W polskim prawie szkolnie rozróżniamy przede wszystkim stowarzyszenia rejestrowe oraz stowarzyszenia zwykłe. „Stałe” i „tymczasowe” nie są właściwymi kategoriami w tym pytaniu. Źródło: <a href=\"https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=wdu19890200104\" target=\"_blank\" rel=\"noopener\">Prawo o stowarzyszeniach<\/a>.", "sourceNumber": "13", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-02835", "nr": 3, "category": "Stowarzyszenia", "categories": ["Stowarzyszenia"], "multi": false, "input": false, "question": "Ustawa „Prawo o stowarzyszeniach” pochodzi z roku:", "options": [{"key": "A", "text": "1984"}, {"key": "B", "text": "1989"}, {"key": "C", "text": "1991"}, {"key": "D", "text": "1997"}], "correct": ["B"], "explanationHtml": "Prawo o stowarzyszeniach uchwalono 7 kwietnia 1989 r. To jedna z ustaw otwierających przestrzeń legalnej samoorganizacji społecznej u schyłku PRL. Źródło: <a href=\"https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=wdu19890200104\" target=\"_blank\" rel=\"noopener\">ISAP<\/a>.", "sourceNumber": "5", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-07918", "nr": 4, "category": "Fundacje", "categories": ["Fundacje"], "multi": false, "input": false, "question": "Ustawa o fundacjach w Polsce pochodzi z roku:", "options": [{"key": "A", "text": "1981"}, {"key": "B", "text": "1984"}, {"key": "C", "text": "1989"}, {"key": "D", "text": "1991"}], "correct": ["B"], "explanationHtml": "Ustawa o fundacjach pochodzi z 6 kwietnia 1984 r. Fundacja działa na podstawie majątku przeznaczonego przez fundatora na zgodny z prawem cel społecznie lub gospodarczo użyteczny. Źródło: <a href=\"https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=wdu19840210097\" target=\"_blank\" rel=\"noopener\">ustawa o fundacjach<\/a>.", "sourceNumber": "2", "source": "COPTIOSH OWoS"}, {"id": "WOS-02690", "nr": 5, "category": "Związki zawodowe", "categories": ["Związki zawodowe"], "multi": false, "input": false, "question": "Ustawa o związkach zawodowych w III RP pochodzi z roku:", "options": [{"key": "A", "text": "1989"}, {"key": "B", "text": "1991"}, {"key": "C", "text": "1994"}, {"key": "D", "text": "1997"}], "correct": ["B"], "explanationHtml": "Ustawa o związkach zawodowych pochodzi z 23 maja 1991 r. Związek zawodowy reprezentuje i broni praw oraz interesów zawodowych i socjalnych ludzi pracy. Źródło: <a href=\"https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU19910550234\" target=\"_blank\" rel=\"noopener\">ustawa o związkach zawodowych<\/a>.", "sourceNumber": "5", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-02727", "nr": 6, "category": "NGO / OPP / wolontariat", "categories": ["NGO / OPP / wolontariat"], "multi": false, "input": false, "question": "Organizacje non profit należą do sektora:", "options": [{"key": "A", "text": "pierwszego"}, {"key": "B", "text": "drugiego"}, {"key": "C", "text": "trzeciego"}, {"key": "D", "text": "czwartego"}], "correct": ["C"], "explanationHtml": "Organizacje non profit należą do trzeciego sektora: obok sektora publicznego i prywatnego. W tym sensie trzeci sektor oznacza dobrowolne organizacje społeczne, zwykle niedziałające dla zysku.", "sourceNumber": "43", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-02888", "nr": 7, "category": "Związki zawodowe", "categories": ["Związki zawodowe"], "multi": true, "input": false, "question": "Antykomunistycznymi ruchami w PRL był (-y):", "options": [{"key": "A", "text": "KOR"}, {"key": "B", "text": "NSZZ „Solidarność”"}, {"key": "C", "text": "ROPCiO"}, {"key": "D", "text": "WZZ"}], "correct": ["A", "B", "C", "D"], "explanationHtml": "<strong>KOR<\/strong> — Komitet Obrony Robotników, organizował pomoc represjonowanym po Czerwcu 1976. Źródło: <a href=\"https://encysol.pl/es/encyklopedia/hasla-rzeczowe/13648%2CKomitet-Obrony-Robotnikow.html\" target=\"_blank\" rel=\"noopener\">Encyklopedia Solidarności<\/a>.<br><strong>NSZZ „Solidarność”<\/strong> — niezależny związek zawodowy i masowy ruch społeczny powstały w 1980 r.; do 1989 r. jeden z głównych ośrodków opozycji. Źródło: <a href=\"https://gdansk.gedanopedia.pl/gdansk/?title=SOLIDARNO%C5%9A%C4%86\" target=\"_blank\" rel=\"noopener\">Encyklopedia Gdańska<\/a>.<br><strong>ROPCiO<\/strong> — Ruch Obrony Praw Człowieka i Obywatela, organizacja opozycyjna od 1977 r. Źródło: <a href=\"https://encysol.pl/es/encyklopedia/hasla-rzeczowe/14333%2CRuch-Obrony-Praw-Czlowieka-i-Obywatela.html\" target=\"_blank\" rel=\"noopener\">Encyklopedia Solidarności<\/a>.<br><strong>WZZ<\/strong> — Wolne Związki Zawodowe, niezależny ruch związkowy przeciw oficjalnym strukturom kontrolowanym przez PRL. Źródło: <a href=\"https://encysol.pl/es/encyklopedia/hasla-rzeczowe/14744%2CWolne-Zwiazki-Zawodowe-Wybrzeza-Komitet-Zalozycielski.html\" target=\"_blank\" rel=\"noopener\">Encyklopedia Solidarności<\/a>.", "sourceNumber": "8", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-03107", "nr": 8, "category": "Stowarzyszenia", "categories": ["Stowarzyszenia"], "multi": false, "input": false, "question": "Ilu potrzeba minimalnie członków założycieli dla powołania stowarzyszenia, potocznie zwanego rejestrowym?:", "options": [{"key": "A", "text": "3"}, {"key": "B", "text": "7"}, {"key": "C", "text": "10"}, {"key": "D", "text": "15"}], "correct": ["B"], "explanationHtml": "Do założenia stowarzyszenia rejestrowego potrzeba co najmniej 7 osób. W starszych materiałach można spotkać liczbę 15, ale aktualny stan prawny to 7. Źródło: <a href=\"https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=wdu19890200104\" target=\"_blank\" rel=\"noopener\">Prawo o stowarzyszeniach<\/a>.", "sourceNumber": "3", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-03121", "nr": 9, "category": "NGO / OPP / wolontariat", "categories": ["NGO / OPP / wolontariat"], "multi": false, "input": false, "question": "Organizacja Pożytku Publicznego działa na podstawie ustawy o działalności pożytku publicznego i o wolontariacie z roku:", "options": [{"key": "A", "text": "1989"}, {"key": "B", "text": "1991"}, {"key": "C", "text": "1997"}, {"key": "D", "text": "2003"}], "correct": ["D"], "explanationHtml": "Organizacja pożytku publicznego działa w ramach regulacji ustawy z 24 kwietnia 2003 r. o działalności pożytku publicznego i o wolontariacie. Źródło: <a href=\"https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=wdu20030960873\" target=\"_blank\" rel=\"noopener\">ISAP<\/a>.", "sourceNumber": "17", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-03355", "nr": 10, "category": "Stowarzyszenia", "categories": ["Stowarzyszenia"], "multi": true, "input": false, "question": "Stowarzyszenia zwykłe w RP – zaznacz zdania prawdziwe:", "options": [{"key": "A", "text": "działają na podstawie regulaminu"}, {"key": "B", "text": "działają na podstawie statutu"}, {"key": "C", "text": "nie posiadają osobowości prawnej"}, {"key": "D", "text": "zakładane są przez min. 3 członków założycieli"}], "correct": ["A", "C", "D"], "explanationHtml": "Stowarzyszenie zwykłe działa na podstawie regulaminu, nie ma osobowości prawnej i może zostać założone przez co najmniej 3 osoby. Źródło: <a href=\"https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=wdu19890200104\" target=\"_blank\" rel=\"noopener\">Prawo o stowarzyszeniach<\/a>.", "sourceNumber": "30", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-03356", "nr": 11, "category": "Związki zawodowe", "categories": ["Związki zawodowe"], "multi": false, "input": false, "question": "OPZZ to:", "options": [{"key": "A", "text": "Obywatelskie Porozumienie Związków Zawodowych"}, {"key": "B", "text": "Ogólne Porozumienie Związków Zawodowych"}, {"key": "C", "text": "Ogólnopolskie Porozumienie Związków Zawodowych"}, {"key": "D", "text": "żadne z powyższych"}], "correct": ["C"], "explanationHtml": "OPZZ to Ogólnopolskie Porozumienie Związków Zawodowych. Nie „obywatelskie” ani „ogólne” — tu znaczenie ma pełna nazwa centrali związkowej.", "sourceNumber": "31", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-03836", "nr": 12, "category": "NGO / OPP / wolontariat", "categories": ["NGO / OPP / wolontariat"], "multi": true, "input": false, "question": "Do organizacji pozarządowych w III RP zajmujących się działalnością oświatową i edukacją obywatelską należy/-ą:", "options": [{"key": "A", "text": "CEO — Centrum Edukacji Obywatelskiej"}, {"key": "B", "text": "PAH — Polska Akcja Humanitarna"}, {"key": "C", "text": "SEO COPTIOSH — Stowarzyszenie Edukacyjno-Oświatowe COPTIOSH"}, {"key": "D", "text": "STO — Społeczne Towarzystwo Oświatowe"}], "correct": ["A", "C", "D"], "explanationHtml": "<strong>CEO<\/strong> — Centrum Edukacji Obywatelskiej; edukacyjna organizacja pożytku publicznego wspierająca szkoły, nauczycieli i edukację obywatelską. Źródło: <a href=\"https://ceo.org.pl/o-ceo/\" target=\"_blank\" rel=\"noopener\">CEO<\/a>.<br><strong>SEO COPTIOSH<\/strong> — Stowarzyszenie Edukacyjno-Oświatowe COPTIOSH w Białymstoku, organizator olimpiad i działań edukacyjnych. Źródło: <a href=\"https://coptiosh.eu/Stowarzyszenie_406.html\" target=\"_blank\" rel=\"noopener\">COPTIOSH<\/a>.<br><strong>STO<\/strong> — Społeczne Towarzystwo Oświatowe; prowadzi szkoły i przedszkola społeczne oraz działa na rzecz jakości edukacji. Źródło: <a href=\"https://sto.org.pl/o-nas/\" target=\"_blank\" rel=\"noopener\">STO<\/a>.<br><strong>PAH<\/strong> — Polska Akcja Humanitarna; to ważna organizacja pozarządowa, ale w tym pytaniu nie pasuje, bo jej podstawowy profil to pomoc humanitarna, nie edukacja obywatelska. Źródło: <a href=\"https://www.pah.org.pl/co-robimy/\" target=\"_blank\" rel=\"noopener\">PAH<\/a>.", "sourceNumber": "26", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-04993", "nr": 13, "category": "Fundacje", "categories": ["Fundacje"], "multi": false, "input": false, "question": "HRW to:", "options": [{"key": "A", "text": "Amnesty International"}, {"key": "B", "text": "Helsińska Fundacja Praw Człowieka"}, {"key": "C", "text": "Humanitarny Ruch Wolności"}, {"key": "D", "text": "żadne z powyższych"}], "correct": ["D"], "explanationHtml": "HRW to Human Rights Watch. Amnesty International jest inną organizacją zajmującą się ochroną praw człowieka, ale nie jest rozwinięciem skrótu HRW. Źródła: <a href=\"https://www.hrw.org/about-us\" target=\"_blank\" rel=\"noopener\">Human Rights Watch<\/a>; <a href=\"https://www.amnesty.org/en/what-we-do/\" target=\"_blank\" rel=\"noopener\">Amnesty International<\/a>.", "sourceNumber": "24", "source": "COPTIOSH OWoPC"}, {"id": "WOS-04997", "nr": 14, "category": "Fundacje", "categories": ["Fundacje"], "multi": true, "input": false, "question": "Helsińska Fundacja Praw Człowieka została założona:", "options": [{"key": "A", "text": "w Helsinkach"}, {"key": "B", "text": "w Warszawie"}, {"key": "C", "text": "w 1989 r."}, {"key": "D", "text": "żadne z powyższych"}], "correct": ["B", "C"], "explanationHtml": "Helsińska Fundacja Praw Człowieka została założona w Warszawie w 1989 r. Nazwa odwołuje się do tradycji helsińskiego ruchu praw człowieka, ale fundacja nie powstała w Helsinkach.", "sourceNumber": "28", "source": "COPTIOSH OWoPC"}, {"id": "WOS-05335", "nr": 15, "category": "NGO / OPP / wolontariat", "categories": ["NGO / OPP / wolontariat"], "multi": true, "input": false, "question": "Organizacje pozarządowe w zakresie ochrony praw człowieka pełnią funkcję/-e:", "options": [{"key": "A", "text": "humanitarną"}, {"key": "B", "text": "implementacyjną"}, {"key": "C", "text": "normatywną"}, {"key": "D", "text": "promocyjno-edukacyjną"}], "correct": ["A", "B", "C", "D"], "explanationHtml": "Organizacje pozarządowe w ochronie praw człowieka mogą pełnić kilka funkcji: <br><strong>humanitarną<\/strong> — pomagają ofiarom naruszeń praw, kryzysów lub przemocy;<br><strong>implementacyjną<\/strong> — monitorują, czy państwa i instytucje rzeczywiście stosują przyjęte standardy;<br><strong>normatywną<\/strong> — uczestniczą w debacie, rzecznictwie i formułowaniu standardów ochrony praw;<br><strong>promocyjno-edukacyjną<\/strong> — upowszechniają wiedzę o prawach człowieka i uczą, jak z nich korzystać. Źródła przykładowe: <a href=\"https://www.amnesty.org/en/what-we-do/\" target=\"_blank\" rel=\"noopener\">Amnesty International<\/a>; <a href=\"https://www.hrw.org/about-us\" target=\"_blank\" rel=\"noopener\">Human Rights Watch<\/a>. Źródło pytania: COPTIOSH OWoPC.", "sourceNumber": "38", "source": "COPTIOSH OWoPC"}, {"id": "WOS-05684", "nr": 16, "category": "Związki zawodowe", "categories": ["Związki zawodowe"], "multi": false, "input": false, "question": "NSZZ Solidarność powstał w wyniku Polskiego:", "options": [{"key": "A", "text": "Czerwca"}, {"key": "B", "text": "Sierpnia"}, {"key": "C", "text": "Grudnia"}, {"key": "D", "text": "żadnego z nich"}], "correct": ["B"], "explanationHtml": "NSZZ „Solidarność” powstał w wyniku Polskiego Sierpnia, czyli fali strajków z 1980 r. Symbolicznie wiąże się to z porozumieniami sierpniowymi i powstaniem niezależnego związku zawodowego.", "sourceNumber": "7", "source": "COPTIOSH OWoPC"}, {"id": "WOS-05685", "nr": 17, "category": "Stowarzyszenia", "categories": ["Stowarzyszenia", "NGO / OPP / wolontariat"], "multi": true, "input": false, "question": "Z różnych źródeł dochodów (nie tylko ze składek członkowskich) mogą korzystać:", "options": [{"key": "A", "text": "organizacje pożytku publicznego"}, {"key": "B", "text": "stowarzyszenia"}, {"key": "C", "text": "stowarzyszenia rejestrowe"}, {"key": "D", "text": "stowarzyszenia zwykłe"}], "correct": ["A", "B", "C", "D"], "explanationHtml": "Z różnych źródeł dochodów mogą korzystać zarówno organizacje pożytku publicznego, jak i stowarzyszenia rejestrowe oraz zwykłe. Składki członkowskie są tylko jednym z możliwych źródeł finansowania.", "sourceNumber": "8", "source": "COPTIOSH OWoPC"}, {"id": "WOS-05742", "nr": 18, "category": "NGO / OPP / wolontariat", "categories": ["NGO / OPP / wolontariat"], "multi": true, "input": false, "question": "NGOs to:", "options": [{"key": "A", "text": "organizacje non profit"}, {"key": "B", "text": "organizacje pozarządowe"}, {"key": "C", "text": "tworzące II sektor"}, {"key": "D", "text": "tworzące III sektor"}], "correct": ["A", "B", "D"], "explanationHtml": "NGO to organizacje pozarządowe, zwykle nienastawione na zysk. Tworzą trzeci sektor. Drugi sektor to działalność gospodarcza, więc odpowiedź „tworzące II sektor” jest błędna.", "sourceNumber": "25", "source": "COPTIOSH OWoS"}, {"id": "WOS-06119", "nr": 19, "category": "Obywatelskie nieposłuszeństwo", "categories": ["Obywatelskie nieposłuszeństwo"], "multi": false, "input": false, "question": "Którego autora dotyczy klasyczny kazus obywatelskiego nieposłuszeństwa: odmowa zapłaty podatku jako sprzeciw wobec niewolnictwa i wojny prowadzonej przez państwo?", "options": [{"key": "A", "text": "F. Engelsa"}, {"key": "B", "text": "F. Lasalla"}, {"key": "C", "text": "K. Marksa"}, {"key": "D", "text": "H. D. Thoreau"}], "correct": ["D"], "explanationHtml": "Chodzi o Henry’ego Davida Thoreau. Jego esej <em>Civil Disobedience<\/em> wyrósł z doświadczenia odmowy zapłaty podatku i krótkiego uwięzienia; sprzeciwiał się m.in. niewolnictwu i wojnie USA z Meksykiem. Źródło: <a href=\"https://www.britannica.com/topic/Civil-Disobedience-essay-by-Thoreau\" target=\"_blank\" rel=\"noopener\">Britannica<\/a>.", "sourceNumber": "32", "source": "COPTIOSH OWoS"}, {"id": "WOS-06565", "nr": 20, "category": "Społeczeństwo obywatelskie", "categories": ["Społeczeństwo obywatelskie"], "multi": true, "input": false, "question": "Do czynników wzmacniających demokrację i chroniących ją przed upadkiem należy/-ą:", "options": [{"key": "A", "text": "partycypacja obywatelska"}, {"key": "B", "text": "rozbudowane społeczeństwo obywatelskie"}, {"key": "C", "text": "ruchy obywatelskiego sprzeciwu i emancypacji"}, {"key": "D", "text": "właściwie funkcjonujący system prawny"}], "correct": ["A", "B", "C", "D"], "explanationHtml": "Demokrację wzmacniają: udział obywateli, rozwinięte społeczeństwo obywatelskie, legalne formy sprzeciwu i emancypacji oraz sprawny system prawny. To zestaw instytucji, praktyk i postaw, nie jedna cudowna dźwignia.", "sourceNumber": "25", "source": "COPTIOSH OWoS"}, {"id": "WOS-06640", "nr": 21, "category": "Stowarzyszenia", "categories": ["Stowarzyszenia", "Związki zawodowe"], "multi": true, "input": false, "question": "W 1989 r. w Polsce miał/-o,y miejsce:", "options": [{"key": "A", "text": "okrągły stół w Polsce"}, {"key": "B", "text": "uchwalenie zmian konstytucyjnych kończących istnienie PRL"}, {"key": "C", "text": "ustawa o związkach zawodowych"}, {"key": "D", "text": "ustawa Prawo o stowarzyszeniach"}], "correct": ["A", "B", "D"], "explanationHtml": "W 1989 r. odbyły się obrady Okrągłego Stołu, uchwalono zmiany konstytucyjne kończące istnienie PRL i przyjęto Prawo o stowarzyszeniach. Ustawa o związkach zawodowych jest z 1991 r. Źródła: <a href=\"https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=wdu19890200104\" target=\"_blank\" rel=\"noopener\">Prawo o stowarzyszeniach<\/a>; <a href=\"https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU19910550234\" target=\"_blank\" rel=\"noopener\">ustawa o związkach zawodowych<\/a>.", "sourceNumber": "3", "source": "COPTIOSH OWoS"}, {"id": "WOS-06956", "nr": 22, "category": "NGO / OPP / wolontariat", "categories": ["NGO / OPP / wolontariat"], "multi": true, "input": false, "question": "Do organizacji pozarządowych zajmujących się pomocą humanitarną i działalnością charytatywną należy (-ą):", "options": [{"key": "A", "text": "Eleos — prawosławna organizacja charytatywna"}, {"key": "B", "text": "Fundacja WOŚP — Fundacja Wielka Orkiestra Świątecznej Pomocy"}, {"key": "C", "text": "PAH — Polska Akcja Humanitarna"}, {"key": "D", "text": "PCK — Polski Czerwony Krzyż"}], "correct": ["A", "B", "C", "D"], "explanationHtml": "<strong>Eleos<\/strong> — organizacja charytatywna pomagająca osobom w trudnej sytuacji życiowej, dzieciom, osobom starszym i chorym. Źródło: <a href=\"https://eleos.pl/o-nas/\" target=\"_blank\" rel=\"noopener\">Eleos<\/a>.<br><strong>Fundacja WOŚP<\/strong> — działa głównie w ochronie zdrowia: zakup sprzętu medycznego, programy medyczne i edukacja pierwszej pomocy. Źródło: <a href=\"https://www.wosp.org.pl/fundacja\" target=\"_blank\" rel=\"noopener\">WOŚP<\/a>.<br><strong>PAH<\/strong> — reaguje na kryzysy humanitarne, katastrofy naturalne i konflikty zbrojne, łącząc pomoc natychmiastową z długofalową. Źródło: <a href=\"https://www.pah.org.pl/co-robimy/\" target=\"_blank\" rel=\"noopener\">PAH<\/a>.<br><strong>PCK<\/strong> — najstarsza polska organizacja humanitarna; pomaga m.in. ofiarom klęsk i katastrof, osobom potrzebującym oraz promuje krwiodawstwo. Źródło: <a href=\"https://pck.pl/polski-czerwony-krzyz/o-nas\" target=\"_blank\" rel=\"noopener\">PCK<\/a>.", "sourceNumber": "24", "source": "COPTIOSH OWoS"}, {"id": "WOS-07348", "nr": 23, "category": "NGO / OPP / wolontariat", "categories": ["NGO / OPP / wolontariat", "Społeczeństwo obywatelskie"], "multi": true, "input": false, "question": "Do cech społeczeństwa obywatelskiego zaliczamy:", "options": [{"key": "A", "text": "aktywność"}, {"key": "B", "text": "niezależność od władzy państwowej"}, {"key": "C", "text": "samoorganizacja"}, {"key": "D", "text": "zrzeszanie się w organizacje pozarządowe"}], "correct": ["A", "B", "C", "D"], "explanationHtml": "Społeczeństwo obywatelskie cechują aktywność, samoorganizacja, zrzeszanie się oraz względna niezależność od władzy państwowej. Nie oznacza to działania przeciw państwu, tylko istnienie autonomicznej przestrzeni społecznej.", "sourceNumber": "1", "source": "COPTIOSH OWoS"}, {"id": "WOS-07683", "nr": 24, "category": "Związki zawodowe", "categories": ["Związki zawodowe"], "multi": false, "input": false, "question": "Drugim przewodniczącym NSZZ „Solidarność” był:", "options": [{"key": "A", "text": "Lech Kaczyński, po Lechu Wałęsie"}, {"key": "B", "text": "Marian Krzaklewski, po Lechu Kaczyńskim"}, {"key": "C", "text": "Marian Krzaklewski, po Lechu Wałęsie"}, {"key": "D", "text": "Lech Wałęsa, po Lechu Kaczyńskim"}], "correct": ["C"], "explanationHtml": "Drugim przewodniczącym NSZZ „Solidarność”, po Lechu Wałęsie, był Marian Krzaklewski. Pełne imiona mają znaczenie, bo same inicjały w quizie utrudniały uczniowi naukę. Źródło: <a href=\"https://gdansk.gedanopedia.pl/gdansk/?title=KRZAKLEWSKI_MARIAN%2C_polityk%2C_dzia%C5%82acz_zwi%C4%85zkowy\" target=\"_blank\" rel=\"noopener\">Encyklopedia Gdańska<\/a>.", "sourceNumber": "1", "source": "COPTIOSH OWoS"}, {"id": "WOS-07685", "nr": 25, "category": "Związki zawodowe", "categories": ["Związki zawodowe"], "multi": true, "input": false, "question": "Konfederacją związków zawodowych w RP jest (są):", "options": [{"key": "A", "text": "NSZZ „Solidarność” — Niezależny Samorządny Związek Zawodowy „Solidarność”"}, {"key": "B", "text": "FZZ — Forum Związków Zawodowych"}, {"key": "C", "text": "OPZZ — Ogólnopolskie Porozumienie Związków Zawodowych"}, {"key": "D", "text": "ZNP — Związek Nauczycielstwa Polskiego"}], "correct": ["B", "C"], "explanationHtml": "Konfederacja związków zawodowych to ogólnokrajowa organizacja międzyzwiązkowa, czyli struktura zrzeszająca związki lub federacje związkowe. W tym pytaniu pasują FZZ i OPZZ. NSZZ „Solidarność” jest ogólnokrajowym związkiem zawodowym, a ZNP związkiem zawodowym skupionym wokół oświaty; nie są tu konfederacjami. Źródła: <a href=\"https://isap.sejm.gov.pl/isap.nsf/download.xsp/WDU20150001240/U/D20151240Lj.pdf\" target=\"_blank\" rel=\"noopener\">ustawa o Radzie Dialogu Społecznego<\/a>; <a href=\"https://www.gov.pl/web/dialog/strony-i-instytucje-dialogu-spolecznego\" target=\"_blank\" rel=\"noopener\">serwis Dialog Społeczny<\/a>.", "sourceNumber": "3", "source": "COPTIOSH OWoS"}, {"id": "WOS-07917", "nr": 26, "category": "Społeczeństwo obywatelskie", "categories": ["Społeczeństwo obywatelskie"], "multi": true, "input": false, "question": "Kapitał społeczny obejmuje:", "options": [{"key": "A", "text": "normy regulujące stosunki międzyludzkie"}, {"key": "B", "text": "ogół relacji międzyludzkich występujących w danym społeczeństwie"}, {"key": "C", "text": "zaufanie, jakim obdarzają się nawzajem jednostki, czyli przekonanie, że jedna strona będzie postępować wobec drugiej uczciwie"}, {"key": "D", "text": "żadne z nich"}], "correct": ["A", "B", "C"], "explanationHtml": "Kapitał społeczny obejmuje sieci relacji, normy współpracy i zaufanie. W praktyce jest to zasób ułatwiający wspólne działanie: od organizacji lokalnych po instytucje społeczeństwa obywatelskiego.", "sourceNumber": "1", "source": "COPTIOSH OWoS"}, {"id": "WOS-07919", "nr": 27, "category": "Dialog społeczny", "categories": ["Dialog społeczny"], "multi": true, "input": false, "question": "Do organizacji pracodawców w RP należy (-ą):", "options": [{"key": "A", "text": "BCC — Business Centre Club"}, {"key": "B", "text": "FZZ — Forum Związków Zawodowych"}, {"key": "C", "text": "Pracodawcy RP"}, {"key": "D", "text": "żadna z nich"}], "correct": ["A", "C"], "explanationHtml": "Business Centre Club i Pracodawcy RP to organizacje pracodawców. FZZ jest organizacją związkową, a więc reprezentuje stronę pracowników, nie pracodawców. Źródło: <a href=\"https://www.gov.pl/web/dialog/strony-i-instytucje-dialogu-spolecznego\" target=\"_blank\" rel=\"noopener\">serwis Dialog Społeczny<\/a>.", "sourceNumber": "3", "source": "COPTIOSH OWoS"}, {"id": "WOS-07922", "nr": 28, "category": "Obywatelskie nieposłuszeństwo", "categories": ["Obywatelskie nieposłuszeństwo"], "multi": true, "input": false, "question": "Obywatelskie nieposłuszeństwo cechuje:", "options": [{"key": "A", "text": "bez przemocy"}, {"key": "B", "text": "gotowość ponoszenia konsekwencji swojego postępowania, w tym poddania się karze"}, {"key": "C", "text": "non-violence"}, {"key": "D", "text": "pokojowy charakter"}], "correct": ["A", "B", "C", "D"], "explanationHtml": "Obywatelskie nieposłuszeństwo ma charakter pokojowy i zakłada gotowość poniesienia konsekwencji. W tym pytaniu „bez przemocy” i „non-violence” wskazują podobny rdzeń, ale nie są idealnie tym samym: „bez przemocy” opisuje sposób działania, a „non-violence” jest nazwą szerszej zasady i tradycji działania politycznego, znanej m.in. z Gandhiego i Kinga. Jeśli arkusz traktuje je jako osobne odpowiedzi, trzeba zaznaczyć obie.", "sourceNumber": "6", "source": "COPTIOSH OWoS"}, {"id": "WOS-08199", "nr": 29, "category": "Spółdzielnie", "categories": ["Spółdzielnie"], "multi": false, "input": false, "question": "Ustawa Prawo spółdzielcze pochodzi w Polsce z roku:", "options": [{"key": "A", "text": "1982"}, {"key": "B", "text": "1989"}, {"key": "C", "text": "1991"}, {"key": "D", "text": "żadnego z nich"}], "correct": ["A"], "explanationHtml": "Prawo spółdzielcze pochodzi z 16 września 1982 r. Spółdzielnia jest dobrowolnym i samorządnym zrzeszeniem prowadzącym działalność w interesie swoich członków. Źródło: <a href=\"https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=wdu19820300210\" target=\"_blank\" rel=\"noopener\">Prawo spółdzielcze<\/a>.", "sourceNumber": "3", "source": "COPTIOSH OWoS"}, {"id": "WOS-03407", "nr": 30, "category": "Fundacje", "categories": ["Fundacje"], "multi": false, "input": true, "question": "Rozwiń skrót: FWOŚP.", "options": [], "correct": [], "explanationHtml": "FWOŚP to Fundacja Wielkiej Orkiestry Świątecznej Pomocy. Źródło w bazie: COPTIOSH OWoIIIRP.", "sourceNumber": "5", "source": "COPTIOSH OWoIIIRP", "acceptedAnswers": ["Fundacja Wielkiej Orkiestry Świątecznej Pomocy"], "expectedAnswer": "Fundacja Wielkiej Orkiestry Świątecznej Pomocy"}, {"id": "WOS-03412", "nr": 31, "category": "Związki zawodowe", "categories": ["Związki zawodowe"], "multi": false, "input": true, "question": "Rozwiń skrót: ZNP.", "options": [], "correct": [], "explanationHtml": "ZNP to Związek Nauczycielstwa Polskiego. W tym zestawie traktujemy go jako przykład związku zawodowego. Źródło w bazie: COPTIOSH OWoIIIRP.", "sourceNumber": "10", "source": "COPTIOSH OWoIIIRP", "acceptedAnswers": ["Związek Nauczycielstwa Polskiego"], "expectedAnswer": "Związek Nauczycielstwa Polskiego"}, {"id": "WOS-03564", "nr": 32, "category": "Związki zawodowe", "categories": ["Związki zawodowe"], "multi": false, "input": false, "question": "FZZ w RP to:", "options": [{"key": "A", "text": "Fundusz Zdrowia Zakładowego"}, {"key": "B", "text": "Fundusz Związków Zawodowych"}, {"key": "C", "text": "Forum Związków Zawodowych"}, {"key": "D", "text": "skrót wymyślony na potrzeby testu"}], "correct": ["C"], "explanationHtml": "FZZ to Forum Związków Zawodowych. Źródło w bazie: COPTIOSH OWoIIIRP.", "sourceNumber": "40", "source": "COPTIOSH OWoIIIRP"}, {"id": "WOS-04417", "nr": 33, "category": "Partycypacja obywatelska", "categories": ["Partycypacja obywatelska"], "multi": false, "input": true, "question": "Rozwiń skrót: EIO.", "options": [], "correct": [], "explanationHtml": "EIO to Europejska inicjatywa obywatelska. Źródło w bazie: COPTIOSH OWoPC.", "sourceNumber": "4", "source": "COPTIOSH OWoPC", "acceptedAnswers": ["Europejska inicjatywa obywatelska"], "expectedAnswer": "Europejska inicjatywa obywatelska"}, {"id": "WOS-04518", "nr": 34, "category": "NGO / OPP / wolontariat", "categories": ["NGO / OPP / wolontariat"], "multi": false, "input": true, "question": "Jaka ogólnoświatowa organizacja pozarządowa z siedzibą w Londynie została utworzona w maju 1961 r. z inicjatywy Petera Benensona?", "options": [], "correct": [], "explanationHtml": "Chodzi o Amnesty International. Celowo nie dodaję tu polskiego tłumaczenia jako osobnej odpowiedzi, bo poprzednio robiło to niepotrzebny bałagan. Źródło w bazie: COPTIOSH OWoPC.", "sourceNumber": "42", "source": "COPTIOSH OWoPC", "acceptedAnswers": ["Amnesty International"], "expectedAnswer": "Amnesty International"}, {"id": "WOS-04906", "nr": 35, "category": "Fundacje", "categories": ["Fundacje"], "multi": false, "input": true, "question": "Rozwiń skrót: HFPC.", "options": [], "correct": [], "explanationHtml": "HFPC to Helsińska Fundacja Praw Człowieka. Źródło w bazie: COPTIOSH OWoPC.", "sourceNumber": "1", "source": "COPTIOSH OWoPC", "acceptedAnswers": ["Helsińska Fundacja Praw Człowieka"], "expectedAnswer": "Helsińska Fundacja Praw Człowieka"}, {"id": "WOS-05103", "nr": 36, "category": "NGO / OPP / wolontariat", "categories": ["NGO / OPP / wolontariat"], "multi": false, "input": true, "question": "Jak nazywa się najstarsza organizacja pozarządowa działająca w Polsce od 1919 roku?", "options": [], "correct": [], "explanationHtml": "Najstarszą organizacją pozarządową działającą w Polsce od 1919 r. jest Polski Czerwony Krzyż. Źródło w bazie: COPTIOSH OWoPC.", "sourceNumber": "1", "source": "COPTIOSH OWoPC", "acceptedAnswers": ["Polski Czerwony Krzyż", "PCK"], "expectedAnswer": "Polski Czerwony Krzyż"}, {"id": "WOS-06528", "nr": 37, "category": "Związki zawodowe", "categories": ["Związki zawodowe"], "multi": false, "input": false, "question": "Kto był pierwszym przewodniczącym NSZZ „Solidarność”?", "options": [{"key": "A", "text": "Andrzej Duda"}, {"key": "B", "text": "Lech Kaczyński"}, {"key": "C", "text": "Lech Wałęsa"}, {"key": "D", "text": "Marian Śniadek"}], "correct": ["C"], "explanationHtml": "Pierwszym przewodniczącym NSZZ „Solidarność” był Lech Wałęsa. Źródło w bazie: COPTIOSH OWoS.", "sourceNumber": "28", "source": "COPTIOSH OWoS"}, {"id": "WOS-07688", "nr": 38, "category": "Partycypacja obywatelska", "categories": ["Partycypacja obywatelska"], "multi": true, "input": false, "question": "Zaangażowanie obywateli we współtworzeniu budżetu samorządu, np. gminy, to:", "options": [{"key": "A", "text": "budżet obywatelski"}, {"key": "B", "text": "budżet partycypacyjny"}, {"key": "C", "text": "jedna z form demokracji przedstawicielskiej"}, {"key": "D", "text": "jedna z form demokracji uczestniczącej"}], "correct": ["A", "B", "D"], "explanationHtml": "Budżet obywatelski to także budżet partycypacyjny i forma demokracji uczestniczącej. Nie jest to forma demokracji przedstawicielskiej, bo obywatel uczestniczy bezpośrednio w decydowaniu o części wydatków. Źródło w bazie: COPTIOSH OWoS.", "sourceNumber": "6", "source": "COPTIOSH OWoS"}, {"id": "WOS-08201", "nr": 39, "category": "Obywatelskie nieposłuszeństwo", "categories": ["Obywatelskie nieposłuszeństwo"], "multi": false, "input": false, "question": "Marsz solny był:", "options": [{"key": "A", "text": "przejawem non-profit"}, {"key": "B", "text": "przejawem obywatelskiego nieposłuszeństwa"}, {"key": "C", "text": "wyrazem sprzeciwu wobec segregacji rasowej"}, {"key": "D", "text": "został zorganizowany przez Martina Luthera Kinga"}], "correct": ["B"], "explanationHtml": "Marsz solny Gandhiego był klasycznym przykładem obywatelskiego nieposłuszeństwa: publicznego, pokojowego złamania prawa uznanego za niesprawiedliwe. Źródło w bazie: COPTIOSH OWoS.", "sourceNumber": "5", "source": "COPTIOSH OWoS"}];
+const STORE_RESULTS = 'wos_so_results_v3';
+const STORE_REPEATS = 'wos_so_repeats_v3';
+let deck = [];
+let current = 0;
+let selected = new Set();
+let textAnswer = '';
+let checked = false;
+let repeatMode = false;
+
+function $(id) { return document.getElementById(id); }
+function escapeHTML(s) { return String(s ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
+function normalizeAnswer(s) { return String(s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[„”"'.,;:()\[\]{}—–-]/g,' ').replace(/\s+/g,' ').trim(); }
+function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch(e) { return fallback; } }
+function save(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+function results() { return load(STORE_RESULTS, {}); }
+function repeats() { return new Set(load(STORE_REPEATS, [])); }
+function saveRepeats(set) { save(STORE_REPEATS, [...set]); }
+function shuffle(arr) { return arr.map(v => [Math.random(), v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]); }
+function currentCategory() { return $('categorySelect').value; }
+function byCategory(list) { const c = currentCategory(); return c === 'all' ? list : list.filter(q => q.categories.includes(c)); }
+function optionText(q, key) { const o = q.options.find(x => x.key === key); return o ? o.text : key; }
+function listAnswers(q, keys) {
+  if(!keys.length) return '<span class="small">brak</span>';
+  return '<ul>' + keys.map(k => `<li><strong>${escapeHTML(k)}.</strong> ${escapeHTML(optionText(q,k))}</li>`).join('') + '</ul>';
+}
+function listOpen(text) { return text ? `<ul><li>${escapeHTML(text)}</li></ul>` : '<span class="small">brak</span>'; }
+function initCategories() {
+  const cats = [...new Set(QUESTIONS.flatMap(q => q.categories))].sort((a,b)=>a.localeCompare(b,'pl'));
+  $('categorySelect').innerHTML = '<option value="all">Wszystkie działy</option>' + cats.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
+}
+function start(mode='normal') {
+  repeatMode = mode === 'repeat';
+  selected = new Set(); textAnswer = ''; checked = false; current = 0;
+  let base = byCategory(QUESTIONS);
+  if(repeatMode) { const rep = repeats(); base = base.filter(q => rep.has(q.id)); }
+  deck = shuffle(base);
+  render(); updateStats();
+}
+function render() {
+  const app = $('app');
+  if(deck.length === 0) {
+    app.innerHTML = `<div class="end"><h2>${repeatMode ? 'Brak pytań w powtórkach' : 'Brak pytań w tym dziale'}</h2><p class="small">Wybierz inny dział albo wróć do pełnego quizu.</p><div class="actions" style="justify-content:center"><button onclick="start('normal')">Pełny quiz</button></div></div>`;
+    return;
+  }
+  if(current >= deck.length) {
+    const r = results();
+    const ids = deck.map(q => q.id);
+    const done = ids.filter(id => r[id]);
+    const good = done.filter(id => r[id]?.ok).length;
+    app.innerHTML = `<div class="end"><h2>Koniec serii</h2><p>Wynik w tej serii: <strong>${good} / ${done.length}</strong>.</p><p class="small">Błędne odpowiedzi zostały dodane do powtórek. Poprawnie rozwiązane pytania znikają z powtórek.</p><div class="actions" style="justify-content:center"><button onclick="start('normal')">Losuj od nowa</button><button class="secondary" onclick="start('repeat')">Przejdź do powtórek</button></div></div>`;
+    updateStats(); return;
+  }
+  const q = deck[current];
+  const rep = repeats().has(q.id);
+  const progress = Math.round((current / deck.length) * 100);
+  const answerArea = q.input
+    ? `<div class="open-answer"><label for="answerInput">Wpisz odpowiedź</label><input id="answerInput" type="text" autocomplete="off" placeholder="Twoja odpowiedź" oninput="textAnswer=this.value"></div>`
+    : `<div class="options">${q.options.map(o => `<button class="option" data-key="${escapeHTML(o.key)}" onclick="choose('${escapeHTML(o.key)}')"><span class="letter">${escapeHTML(o.key)}</span><span>${escapeHTML(o.text)}</span></button>`).join('')}</div>`;
+  app.innerHTML = `
+    <div class="topline">
+      <div class="badges">
+        <span class="badge">${escapeHTML(q.category)}</span>
+        ${rep ? '<span class="badge repeat">w powtórkach</span>' : ''}
+        ${q.input ? '<span class="badge">odpowiedź wpisywana</span>' : ''}
+        <span class="badge teacher-id">${escapeHTML(q.id)} · źródłowe nr ${escapeHTML(q.sourceNumber)} · ${escapeHTML(q.source)}</span>
+      </div>
+      <span class="small">${current+1} / ${deck.length}</span>
+    </div>
+    <div class="progress"><div style="width:${progress}%"></div></div>
+    <div class="question">${escapeHTML(q.question)}</div>
+    ${answerArea}
+    <div id="feedback" class="feedback"></div>
+    <div class="actions">
+      <button id="checkBtn" onclick="checkAnswer()">Sprawdź</button>
+      <button id="nextBtn" class="secondary" onclick="nextQuestion()" disabled>Następne</button>
+    </div>`;
+  refreshOptions();
+  if(q.input) setTimeout(() => $('answerInput')?.focus(), 0);
+}
+function choose(key) {
+  if(checked) return;
+  const q = deck[current];
+  if(q.multi) { selected.has(key) ? selected.delete(key) : selected.add(key); }
+  else { selected = new Set([key]); }
+  refreshOptions();
+}
+function refreshOptions() {
+  document.querySelectorAll('.option').forEach(btn => { btn.classList.toggle('selected', selected.has(btn.dataset.key)); });
+}
+function checkAnswer() {
+  if(checked || !deck.length || current >= deck.length) return;
+  const q = deck[current];
+  if(q.input) { return checkOpenAnswer(q); }
+  if(selected.size === 0) {
+    const fb = $('feedback');
+    fb.className = 'feedback show bad';
+    fb.innerHTML = '<h2>Najpierw zaznacz odpowiedź</h2><p>Bez zaznaczenia system nie ma czego sprawdzić.</p>';
+    return;
+  }
+  checked = true;
+  const correctSelected = q.correct.filter(k => selected.has(k));
+  const missing = q.correct.filter(k => !selected.has(k));
+  const wrongSelected = [...selected].filter(k => !q.correct.includes(k));
+  const ok = missing.length === 0 && wrongSelected.length === 0;
+  saveResult(q.id, ok, {selected:[...selected], missing, wrongSelected});
+  document.querySelectorAll('.option').forEach(btn => {
+    const key = btn.dataset.key;
+    if(q.correct.includes(key) && selected.has(key)) btn.classList.add('correct');
+    if(q.correct.includes(key) && !selected.has(key)) btn.classList.add('missing');
+    if(selected.has(key) && !q.correct.includes(key)) btn.classList.add('wrong');
+  });
+  const fb = $('feedback');
+  fb.className = 'feedback show ' + (ok ? 'good' : 'bad');
+  fb.innerHTML = `<h2>${ok ? 'Dobrze' : 'Niepełna albo błędna odpowiedź'}</h2>
+    <div class="breakdown">
+      <div class="breakbox good"><b>Dobrze zaznaczone</b>${listAnswers(q, correctSelected)}</div>
+      <div class="breakbox missing"><b>Brakujące</b>${listAnswers(q, missing)}</div>
+      <div class="breakbox wrong"><b>Źle zaznaczone</b>${listAnswers(q, wrongSelected)}</div>
+    </div>
+    <div class="explain">${q.explanationHtml}</div>`;
+  afterCheck();
+}
+function checkOpenAnswer(q) {
+  const raw = $('answerInput')?.value || '';
+  const norm = normalizeAnswer(raw);
+  if(!norm) {
+    const fb = $('feedback');
+    fb.className = 'feedback show bad';
+    fb.innerHTML = '<h2>Najpierw wpisz odpowiedź</h2><p>Puste pole nie przejdzie. To nie test cierpliwości sprawdzającego.</p>';
+    return;
+  }
+  checked = true;
+  const accepted = (q.acceptedAnswers || []).map(normalizeAnswer);
+  const ok = accepted.includes(norm);
+  saveResult(q.id, ok, {textAnswer: raw, expected: q.expectedAnswer});
+  const input = $('answerInput');
+  if(input) { input.classList.add(ok ? 'correct' : 'wrong'); input.disabled = true; }
+  const fb = $('feedback');
+  fb.className = 'feedback show ' + (ok ? 'good' : 'bad');
+  fb.innerHTML = `<h2>${ok ? 'Dobrze' : 'Niepoprawna odpowiedź'}</h2>
+    <div class="breakdown">
+      <div class="breakbox good"><b>Dobrze wpisane</b>${ok ? listOpen(raw) : '<span class="small">brak</span>'}</div>
+      <div class="breakbox missing"><b>Oczekiwana odpowiedź</b>${ok ? '<span class="small">nie brakuje</span>' : listOpen(q.expectedAnswer)}</div>
+      <div class="breakbox wrong"><b>Niepoprawny wpis</b>${ok ? '<span class="small">brak</span>' : listOpen(raw)}</div>
+    </div>
+    <div class="explain">${q.explanationHtml}</div>`;
+  afterCheck();
+}
+function saveResult(id, ok, extra) {
+  const rep = repeats();
+  if(ok) rep.delete(id); else rep.add(id);
+  saveRepeats(rep);
+  const r = results();
+  r[id] = { ok, when: new Date().toISOString(), ...extra };
+  save(STORE_RESULTS, r);
+}
+function afterCheck() {
+  $('checkBtn').disabled = true;
+  $('nextBtn').disabled = false;
+  updateStats();
+}
+function nextQuestion() { current += 1; selected = new Set(); textAnswer = ''; checked = false; render(); }
+function updateStats() {
+  const r = results(); const rep = repeats();
+  const solved = Object.keys(r).filter(id => QUESTIONS.some(q => q.id === id));
+  $('statAll').textContent = QUESTIONS.length;
+  $('statDone').textContent = solved.length;
+  $('statGood').textContent = solved.filter(id => r[id]?.ok).length;
+  $('statRep').textContent = rep.size;
+}
+function resetAll() {
+  localStorage.removeItem(STORE_RESULTS); localStorage.removeItem(STORE_REPEATS);
+  repeatMode = false; start('normal');
+}
+$('startBtn').addEventListener('click', () => start('normal'));
+$('repeatBtn').addEventListener('click', () => start('repeat'));
+$('resetBtn').addEventListener('click', resetAll);
+$('categorySelect').addEventListener('change', () => start(repeatMode ? 'repeat' : 'normal'));
+$('showIds').addEventListener('change', e => document.body.classList.toggle('show-ids', e.target.checked));
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter') { checked ? nextQuestion() : checkAnswer(); }
+  if(e.key === 'ArrowRight' && checked) nextQuestion();
+});
+initCategories(); start('normal');
+</script>
+</body>
+</html>
